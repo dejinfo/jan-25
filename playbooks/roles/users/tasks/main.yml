@@ -1,0 +1,30 @@
+---
+
+# - debug:
+#     msg: "{{ users }}"
+
+- name: Ensure groups exists with correct gid
+  ansible.builtin.group:
+    name: "{{item.name}}"
+    state: "{{item.state}}"
+    gid: "{{item.gid}}"
+  with_items:
+  - "{{ user_groups }}"
+
+
+- name: Ensure users are present with correct group and uid
+  ansible.builtin.user:
+    update_password: always
+    name: "{{item.name}}"
+    shell: "{{item.shell}}"
+    group: "{{item.group}}"
+    groups: "{{item.groups}}"
+    create_home: "{{item.create_home}}"
+    uid: "{{item.uid}}"
+    state: "{{item.state}}"
+    password: "{{item.password | password_hash('sha512') }}"
+    remove: true
+    append: yes
+  with_items:
+  - "{{ users }}"
+  ignore_errors: yes
